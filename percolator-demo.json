@@ -1,0 +1,74 @@
+{
+  "source-token": "123456789",
+  "source-id": "wikipedia",
+  "pages": [
+    {
+      "actions": [
+        {
+          "subj": {"title": "this is my title one"},
+          "url": "http://example.com/page-one",
+          "relation-type-id": "mentions",
+          "occurred-at": "2017-01-01",
+          "id": "1111121",
+          "observations": [
+            {
+              "type": "content-url",
+              "input-url": "http://example.com"
+            },
+            {
+              "type": "url",
+              "input-url": "http://psychoceramics.labs.crossref.org/10.5555-12345678.html"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "subj": {"title": "this is my title two"},
+          "url": "http://example.com/page-two",
+          "relation-type-id": "mentions",
+          "occurred-at": "2017-01-01",
+          "id": "2222231",
+          "observations": [
+            {
+              "type": "html",
+              "input-content": "<a href='https://doi.org/10.5555/12345678'>this</a>"
+            }
+          ]
+        },
+        {
+          "subj": {"title": "this is my title three"},
+          "url": "http://example.com/page-three",
+          "relation-type-id": "mentions",
+          "occurred-at": "2017-01-01",
+          "id": "3333341",
+          "observations": [
+            {
+              "type": "plaintext",
+              "input-content": "on two three 10.5555/12345678"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actions": [
+        {
+          "subj": {"title": "this is my title four"},
+          "url": "http://example.com/page-four",
+          "relation-type-id": "mentions",
+          "occurred-at": "2017-01-01",
+          "id": "4444451",
+          "observations": [
+            {
+              "type": "url",
+              "input-url": "http://nature.com/abcdefg"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

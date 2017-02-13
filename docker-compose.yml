@@ -1,0 +1,142 @@
+version: '2'
+services:
+  redis:
+    image: redis
+
+  ebstatus:
+    build: event-data-status
+    volumes:
+     - ./event-data-status/:/usr/src/app
+     - ./.m2-cache:/root/.m2
+    expose:
+     - "8003"
+    ports:
+     - "8003:8003"
+    depends_on:
+     - redis
+    environment:
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - PORT=8003
+     - JWT_SECRETS=TEST,TEST2
+    command: "lein run"
+
+  livedemo:
+    build: event-data-live-demo
+    volumes:
+     - ./event-data-live-demo/:/usr/src/app
+     - ./.m2-cache:/root/.m2
+    expose:
+     - "8101"
+    ports:
+     - "8101:8101"
+    depends_on:
+     - redis
+     - ebstatus
+    environment:
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - STATUS_SERVICE=http://ebstatus:8003
+     - PORT=8101
+     - JWT_SECRETS=TEST,TEST2
+    command: "lein run"
+
+  bus:
+    build: event-data-event-bus
+    expose:
+     - "8002"
+    ports:
+     - "8002:8002"
+    volumes:
+     - ./event-data-event-bus/:/usr/src/app
+     - ./.m2-cache:/home/deploy/.m2
+    depends_on:
+     - redis
+     - ebstatus
+    environment:
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - JWT_SECRETS=TEST,TEST2
+     - STORAGE=redis
+     - PORT=8002
+     - STATUS_SERVICE=http://ebstatus:8003
+     - BROADCAST-LIVEDEMO-JWT=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyIxIjoiMSIsInN1YiI6Indpa2lwZWRpYSJ9.w7zV2vtKNzrNDfgr9dfRpv6XYnspILRli_V5vd1J29Q
+     - BROADCAST-LIVEDEMO-ENDPOINT=http://livedemo:8101/events
+     - BROADCAST-LIVEDEMO-NAME=live-demo
+     - BROADCAST-LIVEDEMO-TYPE=live
+    command: "lein run"
+
+  percolator_accept:
+    build: event-data-percolator
+    expose:
+     - "8006"
+    ports:
+     - "8006:8006"
+    volumes:
+     - ./event-data-percolator:/usr/src/app
+     - ./.m2-cache:/root/.m2
+    depends_on:
+     - redis
+     - ebstatus
+     - percolator_process
+     - percolator_push
+     - livedemo
+     - bus
+    environment:
+     - JWT_SECRETS=TEST,TEST2
+     - DUPLICATE_STORAGE=memory
+     - EVIDENCE_STORAGE=memory
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - PORT=8006
+     - STATUS_SERVICE=http://ebstatus:8003
+     - ARTIFACT_BASE=http://event-data-artifact-prod.s3.amazonaws.com/
+     - S3_KEY=${S3_KEY}
+     - S3_SECRET=${S3_SECRET}
+     - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+     - S3_REGION_NAME=${S3_REGION_NAME}
+    command: "lein run accept"
+
+  percolator_process:
+    build: event-data-percolator
+    volumes:
+     - ./event-data-percolator:/usr/src/app
+     - ./.m2-cache:/root/.m2
+    depends_on:
+     - redis
+     - ebstatus
+    environment:
+     - JWT_SECRETS=TEST,TEST2
+     - DUPLICATE_STORAGE=memory
+     - EVIDENCE_STORAGE=memory
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - STATUS_SERVICE=http://ebstatus:8003
+     - ARTIFACT_BASE=http://event-data-artifact-prod.s3.amazonaws.com/
+    command: "lein run process"
+
+  percolator_push:
+    build: event-data-percolator
+    volumes:
+     - ./event-data-percolator/:/usr/src/app
+     - ./.m2-cache:/root/.m2
+    depends_on:
+     - redis
+     - ebstatus
+    environment:
+     - JWT_SECRETS=TEST,TEST2
+     - STORAGE=memory
+     - EVIDENCE_STORAGE=memory
+     - REDIS_HOST=redis
+     - REDIS_PORT=6379
+     - REDIS_DB=0
+     - STATUS_SERVICE=http://ebstatus:8003
+     - ARTIFACT_BASE=http://event-data-artifact-prod.s3.amazonaws.com/
+     - EVENT_BUS_URL_BASE=http://bus:8002
+    command: "lein run push"
+

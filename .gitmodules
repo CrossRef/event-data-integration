@@ -1,0 +1,15 @@
+[submodule "event-data-event-bus"]
+	path = event-data-event-bus
+	url = https://github.com/CrossRef/event-data-event-bus.git
+[submodule "event-data-status"]
+	path = event-data-status
+	url = https://github.com/CrossRef/event-data-status.git
+[submodule "event-data-percolator"]
+	path = event-data-percolator
+	url = https://github.com/CrossRef/event-data-percolator.git
+[submodule "event-data-query-api-server"]
+	path = event-data-query-api-server
+	url = https://github.com/CrossRef/event-data-query-api-server.git
+[submodule "event-data-live-demo"]
+	path = event-data-live-demo
+	url = https://github.com/CrossRef/event-data-live-demo.git
